@@ -1,0 +1,10 @@
+FileVersion = 1
+
+[Project]
+Name = "yyjson-beef"
+TargetType = "BeefLib"
+StartupObject = "yyjson_beef.Program"
+
+[Configs.Debug.Win64]
+CLibType = "DynamicDebug"
+LibPaths = ["$(ProjectDir)\\libs\\yyjson-windows.lib"]
