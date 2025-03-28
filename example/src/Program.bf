@@ -2,7 +2,8 @@ using System;
 using System.Collections;
 using System.Diagnostics;
 using System.IO;
-using static yyjson_Beef.yyjson;
+
+using static yyjson.yyjson;
 
 namespace example;
 

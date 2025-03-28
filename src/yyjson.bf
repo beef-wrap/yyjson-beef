@@ -29,218 +29,25 @@
 using System;
 using System.Interop;
 
-namespace yyjson_Beef;
+namespace yyjson;
 
 public static class yyjson
 {
-	// #ifndef YYJSON_DISABLE_READER
-	// #endif
-
-	// /*
-	//  Define as 1 to disable JSON writer if JSON serialization is not required.
-
-	//  This will disable these functions at compile-time:
-	//     - yyjson_write()
-	//     - yyjson_write_file()
-	//     - yyjson_write_opts()
-	//     - yyjson_val_write()
-	//     - yyjson_val_write_file()
-	//     - yyjson_val_write_opts()
-	//     - yyjson_mut_write()
-	//     - yyjson_mut_write_file()
-	//     - yyjson_mut_write_opts()
-	//     - yyjson_mut_val_write()
-	//     - yyjson_mut_val_write_file()
-	//     - yyjson_mut_val_write_opts()
-
-	//  This will reduce the binary size by about 30%.
-	//  */
-	// #ifndef YYJSON_DISABLE_WRITER
-	// #endif
-
-	// /*
-	//  Define as 1 to disable JSON Pointer, JSON Patch and JSON Merge Patch supports.
-
-	//  This will disable these functions at compile-time:
-	//     - yyjson_ptr_xxx()
-	//     - yyjson_mut_ptr_xxx()
-	//     - yyjson_doc_ptr_xxx()
-	//     - yyjson_mut_doc_ptr_xxx()
-	//     - yyjson_patch()
-	//     - yyjson_mut_patch()
-	//     - yyjson_merge_patch()
-	//     - yyjson_mut_merge_patch()
-	//  */
-	// #ifndef YYJSON_DISABLE_UTILS
-	// #endif
-
-	// /*
-	//  Define as 1 to disable the fast floating-point number conversion in yyjson,
-	//  and use libc's `strtod/snprintf` instead.
-
-	//  This will reduce the binary size by about 30%, but significantly slow down the
-	//  floating-point read/write speed.
-	//  */
-	// #ifndef YYJSON_DISABLE_FAST_FP_CONV
-	// #endif
-
-	// /*
-	//  Define as 1 to disable non-standard JSON support at compile-time:
-	//     - Reading and writing inf/nan literal, such as `NaN`, `-Infinity`.
-	//     - Single line and multiple line comments.
-	//     - Single trailing comma at the end of an object or array.
-	//     - Invalid unicode in string value.
-
-	//  This will also invalidate these run-time options:
-	//     - YYJSON_READ_ALLOW_INF_AND_NAN
-	//     - YYJSON_READ_ALLOW_COMMENTS
-	//     - YYJSON_READ_ALLOW_TRAILING_COMMAS
-	//     - YYJSON_READ_ALLOW_INVALID_UNICODE
-	//     - YYJSON_WRITE_ALLOW_INF_AND_NAN
-	//     - YYJSON_WRITE_ALLOW_INVALID_UNICODE
-
-	//  This will reduce the binary size by about 10%, and speed up the reading and
-	//  writing speed by about 2% to 6%.
-	//  */
-	// #ifndef YYJSON_DISABLE_NON_STANDARD
-	// #endif
-
-	// /*
-	//  Define as 1 to disable UTF-8 validation at compile time.
-
-	//  If all input strings are guaranteed to be valid UTF-8 encoding (for example,
-	//  some language's String object has already validated the encoding), using this
-	//  flag can avoid redundant UTF-8 validation in yyjson.
-
-	//  This flag can speed up the reading and writing speed of non-ASCII encoded
-	//  strings by about 3% to 7%.
-
-	//  Note: If this flag is used while passing in illegal UTF-8 strings, the
-	//  following errors may occur:
-	//  - Escaped characters may be ignored when parsing JSON strings.
-	//  - Ending quotes may be ignored when parsing JSON strings, causing the string
-	//    to be concatenated to the next value.
-	//  - When accessing `yyjson_mut_val` for serialization, the string ending may be
-	//    accessed out of bounds, causing a segmentation fault.
-	//  */
-	// #ifndef YYJSON_DISABLE_UTF8_VALIDATION
-	// #endif
-
-	// /*
-	//  Define as 1 to indicate that the target architecture does not support unaligned
-	//  memory access. Please refer to the comments in the C file for details.
-	//  */
-	// #ifndef YYJSON_DISABLE_UNALIGNED_MEMORY_ACCESS
-	// #endif
-
-	// /* Define as 1 to export symbols when building this library as Windows DLL. */
-	// #ifndef YYJSON_EXPORTS
-	// #endif
-
-	// /* Define as 1 to import symbols when using this library as Windows DLL. */
-	// #ifndef YYJSON_IMPORTS
-	// #endif
-
-	// /* Define as 1 to include <stdint.h> for compiler which doesn't support C99. */
-	// #ifndef YYJSON_HAS_STDINT_H
-	// #endif
-
-	// /* Define as 1 to include <stdbool.h> for compiler which doesn't support C99. */
-	// #ifndef YYJSON_HAS_STDBOOL_H
-	// #endif
-
-	// /** stdint (C89 compatible) */
-	// #if (defined(YYJSON_HAS_STDINT_H) && YYJSON_HAS_STDINT_H) || \
-	//     YYJSON_MSC_VER >= 1600 || YYJSON_STDC_VER >= 199901L || \
-	//     defined(_STDINT_H) || defined(_STDINT_H_) || \
-	//     defined(__CLANG_STDINT_H) || defined(_STDINT_H_INCLUDED) || \
-	//     yyjson_has_include(<stdint.h>)
-	// #   include <stdint.h>
-	// #elif defined(_MSC_VER)
-	// #   if _MSC_VER < 1300
-	//         typedef signed char         int8_t;
-	//         typedef signed short        int16_t;
-	//         typedef signed int          int32_t;
-	//         typedef unsigned char       uint8_t;
-	//         typedef unsigned short      uint16_t;
-	//         typedef unsigned int        uint32_t;
-	//         typedef signed __int64      int64_t;
-	//         typedef unsigned __int64    uint64_t;
-	// #   else
-	//         typedef signed __int8       int8_t;
-	//         typedef signed __int16      int16_t;
-	//         typedef signed __int32      int32_t;
-	//         typedef unsigned __int8     uint8_t;
-	//         typedef unsigned __int16    uint16_t;
-	//         typedef unsigned __int32    uint32_t;
-	//         typedef signed __int64      int64_t;
-	//         typedef unsigned __int64    uint64_t;
-	// #   endif
-	// #else
-	// #   if UCHAR_MAX == 0xFFU
-	//         typedef signed char     int8_t;
-	//         typedef unsigned char   uint8_t;
-	// #   else
-	// #       error cannot find 8-bit integer type
-	// #   endif
-	// #   if USHRT_MAX == 0xFFFFU
-	//         typedef unsigned short  uint16_t;
-	//         typedef signed short    int16_t;
-	// #   elif UINT_MAX == 0xFFFFU
-	//         typedef unsigned int    uint16_t;
-	//         typedef signed int      int16_t;
-	// #   else
-	// #       error cannot find 16-bit integer type
-	// #   endif
-	// #   if UINT_MAX == 0xFFFFFFFFUL
-	//         typedef unsigned int    uint32_t;
-	//         typedef signed int      int32_t;
-	// #   elif ULONG_MAX == 0xFFFFFFFFUL
-	//         typedef unsigned long   uint32_t;
-	//         typedef signed long     int32_t;
-	// #   elif USHRT_MAX == 0xFFFFFFFFUL
-	//         typedef unsigned short  uint32_t;
-	//         typedef signed short    int32_t;
-	// #   else
-	// #       error cannot find 32-bit integer type
-	// #   endif
-	// #   if defined(__INT64_TYPE__) && defined(__UINT64_TYPE__)
-	//         typedef __INT64_TYPE__  int64_t;
-	//         typedef __UINT64_TYPE__ uint64_t;
-	// #   elif defined(__GNUC__) || defined(__clang__)
-	// #       if !defined(_SYS_TYPES_H) && !defined(__int8_t_defined)
-	//         __extension__ typedef long long             int64_t;
-	// #       endif
-	//         __extension__ typedef unsigned long long    uint64_t;
-	// #   elif defined(_LONG_LONG) || defined(__MWERKS__) || defined(_CRAYC) || \
-	//         defined(__SUNPRO_C) || defined(__SUNPRO_CC)
-	//         typedef long long           int64_t;
-	//         typedef unsigned long long  uint64_t;
-	// #   elif (defined(__BORLANDC__) && __BORLANDC__ > 0x460) || \
-	//         defined(__WATCOM_INT64__) || defined (__alpha) || defined (__DECC)
-	//         typedef __int64             int64_t;
-	//         typedef unsigned __int64    uint64_t;
-	// #   else
-	// #       error cannot find 64-bit integer type
-	// #   endif
-	// #endif
-
-
 	/*==============================================================================
 	* Version
 	*============================================================================*/
 
 	/** The major version of yyjson. */
-	const int YYJSON_VERSION_MAJOR  = 0;
+	const c_int YYJSON_VERSION_MAJOR  = 0;
 
 	/** The minor version of yyjson. */
-	const int YYJSON_VERSION_MINOR  = 10;
+	const c_int YYJSON_VERSION_MINOR  = 10;
 
 	/** The patch version of yyjson. */
-	const int YYJSON_VERSION_PATCH  = 0;
+	const c_int YYJSON_VERSION_PATCH  = 0;
 
 	/** The version of yyjson in hex: `(major << 16) | (minor << 8) | (patch)`. */
-	const int YYJSON_VERSION_HEX    = 0x000A00;
+	const c_int YYJSON_VERSION_HEX    = 0x000A00;
 
 	/** The version string of yyjson. */
 	const String YYJSON_VERSION_STRING = "0.10.0";
@@ -265,58 +72,58 @@ public static class yyjson
 	/** Type of a JSON value (3 bit). */
 	typealias yyjson_type = uint8_t;
 	/** No type, invalid. */
-	const uint8_t YYJSON_TYPE_NONE        = ((uint8_t)0); /* _____000 */
+	const uint8_t YYJSON_TYPE_NONE        = 0; /* _____000 */
 	/** Raw string type, no subtype. */
-	const uint8_t YYJSON_TYPE_RAW         = ((uint8_t)1); /* _____001 */
+	const uint8_t YYJSON_TYPE_RAW         = 1; /* _____001 */
 	/** Null type: `null` literal, no subtype. */
-	const uint8_t YYJSON_TYPE_NULL        = ((uint8_t)2); /* _____010 */
+	const uint8_t YYJSON_TYPE_NULL        = 2; /* _____010 */
 	/** Boolean type, subtype: TRUE, FALSE. */
-	const uint8_t YYJSON_TYPE_BOOL        = ((uint8_t)3); /* _____011 */
+	const uint8_t YYJSON_TYPE_BOOL        = 3; /* _____011 */
 	/** Number type, subtype: UINT, SINT, REAL. */
-	const uint8_t YYJSON_TYPE_NUM         = ((uint8_t)4); /* _____100 */
+	const uint8_t YYJSON_TYPE_NUM         = 4; /* _____100 */
 	/** String type, subtype: NONE, NOESC. */
-	const uint8_t YYJSON_TYPE_STR         = ((uint8_t)5); /* _____101 */
+	const uint8_t YYJSON_TYPE_STR         = 5; /* _____101 */
 	/** Array type, no subtype. */
-	const uint8_t YYJSON_TYPE_ARR         = ((uint8_t)6); /* _____110 */
+	const uint8_t YYJSON_TYPE_ARR         = 6; /* _____110 */
 	/** Object type, no subtype. */
-	const uint8_t YYJSON_TYPE_OBJ         = ((uint8_t)7); /* _____111 */
+	const uint8_t YYJSON_TYPE_OBJ         = 7; /* _____111 */
 
 	/** Subtype of a JSON value (2 bit). */
 	typealias yyjson_subtype = uint8_t;
 	/** No subtype. */
-	const uint8_t YYJSON_SUBTYPE_NONE     = ((uint8_t)(0 << 3)); /* ___00___ */
+	const uint8_t YYJSON_SUBTYPE_NONE     = 0 << 3; /* ___00___ */
 	/** False subtype: `false` literal. */
-	const uint8_t YYJSON_SUBTYPE_FALSE    = ((uint8_t)(0 << 3)); /* ___00___ */
+	const uint8_t YYJSON_SUBTYPE_FALSE    = 0 << 3; /* ___00___ */
 	/** True subtype: `true` literal. */
-	const uint8_t YYJSON_SUBTYPE_TRUE     = ((uint8_t)(1 << 3)); /* ___01___ */
+	const uint8_t YYJSON_SUBTYPE_TRUE     = 1 << 3; /* ___01___ */
 	/** Unsigned integer subtype: `uint64_t`. */
-	const uint8_t YYJSON_SUBTYPE_UINT     = ((uint8_t)(0 << 3)); /* ___00___ */
+	const uint8_t YYJSON_SUBTYPE_UINT     = 0 << 3; /* ___00___ */
 	/** Signed integer subtype: `int64_t`. */
-	const uint8_t YYJSON_SUBTYPE_SINT     = ((uint8_t)(1 << 3)); /* ___01___ */
+	const uint8_t YYJSON_SUBTYPE_SINT     = 1 << 3; /* ___01___ */
 	/** Real number subtype: `double`. */
-	const uint8_t YYJSON_SUBTYPE_REAL     = ((uint8_t)(2 << 3)); /* ___10___ */
+	const uint8_t YYJSON_SUBTYPE_REAL     = 2 << 3; /* ___10___ */
 	/** String that do not need to be escaped for writing (internal use). */
-	const uint8_t YYJSON_SUBTYPE_NOESC    = ((uint8_t)(1 << 3)); /* ___01___ */
+	const uint8_t YYJSON_SUBTYPE_NOESC    = 1 << 3; /* ___01___ */
 
 	/** The mask used to extract the type of a JSON value. */
-	const uint8_t YYJSON_TYPE_MASK        = ((uint8_t)0x07); /* _____111 */
+	const uint8_t YYJSON_TYPE_MASK        = 0x07; /* _____111 */
 	/** The number of bits used by the type. */
-	const uint8_t YYJSON_TYPE_BIT         = ((uint8_t)3);
+	const uint8_t YYJSON_TYPE_BIT         = 3;
 	/** The mask used to extract the subtype of a JSON value. */
-	const uint8_t YYJSON_SUBTYPE_MASK     = ((uint8_t)0x18); /* ___11___ */
+	const uint8_t YYJSON_SUBTYPE_MASK     = 0x18; /* ___11___ */
 	/** The number of bits used by the subtype. */
-	const uint8_t YYJSON_SUBTYPE_BIT      = ((uint8_t)2);
+	const uint8_t YYJSON_SUBTYPE_BIT      = 2;
 	/** The mask used to extract the reserved bits of a JSON value. */
-	const uint8_t YYJSON_RESERVED_MASK    = ((uint8_t)0xE0); /* 111_____ */
+	const uint8_t YYJSON_RESERVED_MASK    = 0xE0; /* 111_____ */
 	/** The number of reserved bits. */
-	const uint8_t YYJSON_RESERVED_BIT     = ((uint8_t)3);
+	const uint8_t YYJSON_RESERVED_BIT     = 3;
 	/** The mask used to extract the tag of a JSON value. */
-	const uint8_t YYJSON_TAG_MASK         = ((uint8_t)0xFF); /* 11111111 */
+	const uint8_t YYJSON_TAG_MASK         = 0xFF; /* 11111111 */
 	/** The number of bits used by the tag. */
-	const uint8_t YYJSON_TAG_BIT          = ((uint8_t)8);
+	const uint8_t YYJSON_TAG_BIT          = 8;
 
 	/** Padding size for JSON reader. */
-	const int YYJSON_PADDING_SIZE     = 4;
+	const c_int YYJSON_PADDING_SIZE       = 4;
 
 
 	/*==============================================================================
@@ -742,10 +549,10 @@ public static class yyjson
 
 	/** The highest 8 bits of `yyjson_write_flag` and real number value's `tag`
 		are reserved for controlling the output format of floating-point numbers. */
-	const int YYJSON_WRITE_FP_FLAG_BITS = 8;
+	const c_int YYJSON_WRITE_FP_FLAG_BITS = 8;
 
 	/** The highest 4 bits of flag are reserved for precision value. */
-	const int YYJSON_WRITE_FP_PREC_BITS = 4;
+	const c_int YYJSON_WRITE_FP_PREC_BITS = 4;
 
 	/** Write floating-point number using fixed-point notation.
 		- This is similar to ECMAScript `Number.prototype.toFixed(prec)`,
@@ -1267,9 +1074,9 @@ public static class yyjson
 		Returns 0 if `val` is NULL or type is not integer(sint/uint). */
 	[CLink] public static extern int64_t yyjson_get_sint(yyjson_val *val);
 
-	/** Returns the content and cast to int.
+	/** Returns the content and cast to c_int.
 		Returns 0 if `val` is NULL or type is not integer(sint/uint). */
-	[CLink] public static extern int yyjson_get_int(yyjson_val *val);
+	[CLink] public static extern c_int yyjson_get_int(yyjson_val *val);
 
 	/** Returns the content if the value is real number, or 0.0 on error.
 		Returns 0.0 if `val` is NULL or type is not real(double). */
@@ -1328,10 +1135,10 @@ public static class yyjson
 		@warning This will modify the `immutable` value, use with caution. */
 	[CLink] public static extern bool yyjson_set_sint(yyjson_val *val, int64_t num);
 
-	/** Set the value to int.
+	/** Set the value to c_int.
 		Returns false if input is NULL or `val` is object or array.
 		@warning This will modify the `immutable` value, use with caution. */
-	[CLink] public static extern bool yyjson_set_int(yyjson_val *val, int num);
+	[CLink] public static extern bool yyjson_set_int(yyjson_val *val, c_int num);
 
 	/** Set the value to float.
 		Returns false if input is NULL or `val` is object or array.
@@ -1352,7 +1159,7 @@ public static class yyjson
 		Returns false if input is NULL or `val` is not real type.
 		@see YYJSON_WRITE_FP_TO_FIXED flag.
 		@warning This will modify the `immutable` value, use with caution. */
-	[CLink] public static extern bool yyjson_set_fp_to_fixed(yyjson_val *val, int prec);
+	[CLink] public static extern bool yyjson_set_fp_to_fixed(yyjson_val *val, c_int prec);
 
 	/** Set the floating-point number's output format to single-precision.
 		Returns false if input is NULL or `val` is not real type.
@@ -1847,9 +1654,9 @@ public static class yyjson
 		Returns 0 if `val` is NULL or type is not integer(sint/uint). */
 	[CLink] public static extern int64_t yyjson_mut_get_sint(yyjson_mut_val *val);
 
-	/** Returns the content and cast to int.
+	/** Returns the content and cast to c_int.
 		Returns 0 if `val` is NULL or type is not integer(sint/uint). */
-	[CLink] public static extern int yyjson_mut_get_int(yyjson_mut_val *val);
+	[CLink] public static extern c_int yyjson_mut_get_int(yyjson_mut_val *val);
 
 	/** Returns the content if the value is real number.
 		Returns 0.0 if `val` is NULL or type is not real(double). */
@@ -1909,10 +1716,10 @@ public static class yyjson
 		@warning This function should not be used on an existing object or array. */
 	[CLink] public static extern bool yyjson_mut_set_sint(yyjson_mut_val *val, int64_t num);
 
-	/** Set the value to int.
+	/** Set the value to c_int.
 		Returns false if input is NULL.
 		@warning This function should not be used on an existing object or array. */
-	[CLink] public static extern bool yyjson_mut_set_int(yyjson_mut_val *val, int num);
+	[CLink] public static extern bool yyjson_mut_set_int(yyjson_mut_val *val, c_int num);
 
 	/** Set the value to float.
 		Returns false if input is NULL.
@@ -1933,7 +1740,7 @@ public static class yyjson
 		Returns false if input is NULL or `val` is not real type.
 		@see YYJSON_WRITE_FP_TO_FIXED flag.
 		@warning This will modify the `immutable` value, use with caution. */
-	[CLink] public static extern bool yyjson_mut_set_fp_to_fixed(yyjson_mut_val *val, int prec);
+	[CLink] public static extern bool yyjson_mut_set_fp_to_fixed(yyjson_mut_val *val, c_int prec);
 
 	/** Set the floating-point number's output format to single-precision.
 		Returns false if input is NULL or `val` is not real type.
@@ -3235,7 +3042,7 @@ public static class yyjson
 			unmodified for the lifetime of this JSON document. */
 	[CLink] public static extern bool yyjson_mut_obj_add_sint(yyjson_mut_doc *doc, yyjson_mut_val *obj, char *key, int64_t val);
 
-	/** Adds an int value at the end of the object.
+	/** Adds an c_int value at the end of the object.
 		The `key` should be a null-terminated UTF-8 string.
 		This function allows duplicated key in one object.
 
